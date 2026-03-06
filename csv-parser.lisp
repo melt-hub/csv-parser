@@ -1,18 +1,18 @@
 #!/usr/bin/sbcl --script
 
-(defun print-lines (f)
- (let ((line (read-line f nil)))
-   (unless (null line)
-     (format t "~a~%" line)
-     (print-lines f))))
+;(defun print-lines (f)
+; (let ((line (read-line f nil)))
+;   (unless (null line)
+;     (format t "~a~%" line)
+;     (print-lines f))))
 
 (defun prod-field (word)
   (let ((code (char-code (char word 0)))
-        (rest (subseq word 1)))
+        (rst (subseq word 1)))
     (if (and (>= code 32) ; Space.
              (<= code 126) ; Tilde.
              (not (= code 44))) ; Comma.
-        (prod-field rest)
+        (prod-field rst)
         t)))
 
 (defun prod-record (word)
