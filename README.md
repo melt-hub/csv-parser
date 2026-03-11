@@ -1,4 +1,3 @@
-# BaCSV - Basic Comma Separated Value Parser
 
 A simple Common Lisp implementation of a recursive descent parser for CSV (comma separated values) formatted files. 
 
@@ -41,11 +40,13 @@ file = [header CLRF] record *(CLRF record) [CLRF]
 
 header = name *(COMMA name)
 
-record = field *(COMMA field) 
+record = field *(COMMA field) / enclosed_field *(COMMA enclosed_field)
 
 name = field
 
-field = DQUOTE *(TEXTDATA / COMMA) DQUOTE 
+enclosed_field = DQUOTE *(TEXTDATA / COMMA) DQUOTE 
+
+field = *(TEXTDATA) 
 
 COMMA = %x2C
 
@@ -74,6 +75,6 @@ Our grammar deals with none of those ambiguities; it just assumes that:
 2. Each `record` is located on a separate line, delimite by a line break (`CLRF`).
 3. The last record in the file may or may not have an ending line break.
 4. Each `record` consints a number of `field`(s) that should be equal to the number of the `names`(s) in the `header`.
-5. Each `field` consists of a sequence of any ASCII character but the double quote, enclosed between double quotes.
+5. Each `field` consists of a sequence of any ASCII character but the double quote,either enclosed between double quotes or not.
 
 Imposing such limitations to the original grammar, thus to the language it generates, largely eases the complexity of our parser, nonetheless preserving usability in real world applications, being this CSV "dialect" quite common, and given the possibility to slightly modify our grammar to allow both double quote enclosed fields and non-double quot enclosed fields.
