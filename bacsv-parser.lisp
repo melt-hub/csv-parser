@@ -2,11 +2,11 @@
 
 #!/usr/bin/sbcl --script
 
-;(defun print-lines (f)
-; (let ((line (read-line f nil)))
-;   (unless (null line)
-;     (format t "~a~%" line)
-;     (print-lines f))))
+(defun print-lines (f)
+ (let ((line (read-line f nil)))
+   (unless (null line)
+     (format t "~a~%" line)
+     (print-lines f))))
 
 ; field production
 (defun prod-field (word)
@@ -20,8 +20,7 @@
 ; end field production
 
 ; record production
-(defun prod-record (word)
-  )
+(defun prod-record (word) t)
 ; end record production
 
 ; parse record
