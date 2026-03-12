@@ -94,7 +94,7 @@
 (defun file (csv-file)
   (if (and (header csv-file) (records csv-file))
     t
-    nil))
+    (format t "ERR: Error while parsing.~%")))
 ; end file production
 
 ; usage
@@ -111,6 +111,5 @@
 ; end main
 
 (main sb-ext:*posix-argv*)
-
 
 ; end my-proposal.lisp
