@@ -11,10 +11,10 @@
 ; ===============| HEADER PARSING |===============
 
 ; header profuction 
-(defun header (line)
+(defun header (csv-file)
   (let ((line (read-line csv-file nil)))
     (unless (null line)
-      (names line))))
+      (names line 0))))
 ; end header production
 
 ; names production
@@ -23,8 +23,8 @@
     (when offset-a 
       (or 
         (let ((offset-b (comma line offset-a)))
-          (names line offset-b))
-        (clrf line offset-b)))))
+          (names line offset-b)
+        (clrf line offset-b))))))
 ; end names production
 
 ; name production
@@ -37,10 +37,10 @@
 (defun comma (line cursor) 
   (let* ((curr-char (char line cursor))
          (curr-ascii (char-code curr-char))
-         (rest-of-line (1+ cursor))))
+          (rest-of-line (1+ cursor)))
     (if (= curr-ascii #x2C)
       rest-of-line
-      -1))
+      -1)))
 ; end comma production
 
 ; clrf production
@@ -49,11 +49,11 @@
          (nxt-char (char line (1+ cursor)))
          (curr-ascii (char-code curr-char))
          (nxt-ascii (char-code nxt-char))
-         (rest-of-line (+ cursor 2))))
+         (rest-of-line (+ cursor 2)))
     (if (and (= curr-ascii #x0D)
              (= nxt-ascii #x0A))
       rest-of-line
-      -1))
+      -1)))
 ; end clrf production
 
 ; ===============| END HEADER PARSING |===============
@@ -61,31 +61,31 @@
 ; ===============| RECORDS PARSING |===============
 
 ; records production
-(defun records (csv-file) t)
+; (defun records (csv-file) t)
 ; end recors production
 
 ; record production
-(defun record (line cursor) t)
+; (defun record (line cursor) t)
 ; end recor production
 
 ; fields production
-(defun fields (line cursor) t)
+; (defun fields (line cursor) )
 ; end fields production
 
 ; enclosed fields production
-(defun enclosed-fields (line cursor) t)
+; (defun enclosed-fields (line cursor) t)
 ; end enclosed fields production
 
 ; field production
-(defun field (line cursor) t)
+; (defun field (line cursor) t)
 ; end field production
 
 ; enclosed field production
-(defun enclosed-field (line cursor) t)
+; (defun enclosed-field (line cursor) t)
 ; end enclosed field production
 
 ; word production
-(defun word (line cursor) t)
+; (defun word (line cursor) t)
 ; end word production
 
 ; ===============| RECORDS PARSING |===============
