@@ -10,58 +10,46 @@
 
 ; ===============| HEADER PARSING |===============
 
-; header profuction 
-(defun header (csv-file)
-  (let ((line (read-line csv-file nil)))
-    (unless (null line)
-      (names line 0))))
+; header production 
+(defun header (line)
+  (let ((end-cursor (names line 0)))
+    (when (and end-cursor (>= end-cursor (length line)))
+      t)))
 ; end header production
 
 ; names production
 (defun names (line cursor)
-  (let ((offset-a (name line cursor)))
-    (when offset-a 
-      (or 
-        (let ((offset-b (comma line offset-a)))
-          (names line offset-b)
-        (clrf line offset-b))))))
+  (cond
+    ((null cursor) nil)
+    (t (let ((after-name (name line cursor)))
+         (cond
+           ((null after-name) nil)
+           ((>= after-name (length line)) after-name)
+           (t (let ((after-comma (comma line after-name)))
+                (if (and after-comma (< after-comma (length line)))
+                    (names line after-comma)
+                    after-name))))))))
 ; end names production
 
 ; name production
 (defun name (line cursor) 
-  (or (field line cursor) 
-      (enclosed-field line cursor)))
+  (or (enclosed-field line cursor) 
+      (field line cursor)))
 ; end name production
 
 ; comma production
-(defun comma (line cursor) 
-  (let* ((curr-char (char line cursor))
-         (curr-ascii (char-code curr-char))
-          (rest-of-line (1+ cursor)))
-    (if (= curr-ascii #x2C)
-      rest-of-line
-      -1)))
+(defun comma (line cursor)
+  (when (= (char-code (char line cursor)) #x2C)
+    (1+ cursor)))
 ; end comma production
-
-; clrf production
-(defun clrf (line cursor) 
-  (let* ((curr-char (char line cursor))
-         (nxt-char (char line (1+ cursor)))
-         (curr-ascii (char-code curr-char))
-         (nxt-ascii (char-code nxt-char))
-         (rest-of-line (+ cursor 2)))
-    (if (and (= curr-ascii #x0D)
-             (= nxt-ascii #x0A))
-      rest-of-line
-      -1)))
-; end clrf production
 
 ; ===============| END HEADER PARSING |===============
 
 ; ===============| RECORDS PARSING |===============
 
 ; records production
-; (defun records (csv-file) t)
+(defun records (csv-file) 
+  )
 ; end recors production
 
 ; record production
@@ -69,19 +57,37 @@
 ; end recor production
 
 ; fields production
-; (defun fields (line cursor) )
+(defun fields (line cursor) 1)
 ; end fields production
 
 ; enclosed fields production
-; (defun enclosed-fields (line cursor) t)
+(defun enclosed-fields (line cursor) 1)
 ; end enclosed fields production
 
 ; field production
-; (defun field (line cursor) t)
+(defun field (line cursor)
+  (cond
+    ((null cursor) cursor)
+    ((>= cursor (length line)) cursor)
+    (t
+      (let ((curr-char-code (char-code (char line cursor))))
+        (if
+          (or
+            (and (>= curr-char-code #x20) (<= curr-char-code #x21))
+            (and (>= curr-char-code #x23) (<= curr-char-code #x2B))
+            (and (>= curr-char-code #x2D) (<= curr-char-code #x7E)))
+          (field line (1+ cursor))
+          cursor)))))
 ; end field production
 
 ; enclosed field production
-; (defun enclosed-field (line cursor) t)
+(defun enclosed-field (line cursor)
+  (when (= (char-code (char line cursor)) #x22)
+    (let ((after-field (field line (1+ cursor))))
+      (when (and
+              (< after-field (length line))
+              (= (char-code (char line after-field)) #x22))
+        (1+ after-field)))))
 ; end enclosed field production
 
 ; word production
@@ -92,9 +98,11 @@
 
 ; file production
 (defun file (csv-file)
-  (if (and (header csv-file) (records csv-file))
-    t
-    (format t "ERR: Error while parsing.~%")))
+  (let ((line (read-line csv-file nil)))
+    (unless (null line)
+      (if (and (header line) (records csv-file))
+        t
+        (format t "ERR: Error while parsing.~%")))))
 ; end file production
 
 ; usage
@@ -110,6 +118,7 @@
     (t (usage))))
 ; end main
 
-(main sb-ext:*posix-argv*)
+; (main sb-ext:*posix-argv*)
 
 ; end my-proposal.lisp
+ 
