@@ -8,6 +8,10 @@
   (sb-ext:exit :code 1))
 ; end die
 
+; cheer
+(defun cheer (msg) (format t "~a~%" msg))
+; end cheer
+
 ; ===============| HEADER PARSING |===============
 
 ; header production 
@@ -48,21 +52,14 @@
 ; ===============| RECORDS PARSING |===============
 
 ; records production
-(defun records (csv-file) 
-  t)
-; end recors production
-
-; record production
-; (defun record (line cursor) t)
-; end recor production
-
-; fields production
-(defun fields (line cursor) 1)
-; end fields production
-
-; enclosed fields production
-(defun enclosed-fields (line cursor) 1)
-; end enclosed fields production
+(defun records (csv-file line-count)
+  (let ((line (read-line csv-file nil)))
+    (cond
+      ((null line) nil)
+      ((= (length line) 0) nil)
+      ((< (names line 0) (length line)) (cons (1+ line-count) (names line 0)))
+      (t (records csv-file (1+ line-count))))))
+; end records production
 
 ; field production
 (defun field (line cursor)
@@ -90,19 +87,22 @@
         (1+ after-field)))))
 ; end enclosed field production
 
-; word production
-; (defun word (line cursor) t)
-; end word production
-
 ; ===============| END RECORDS PARSING |===============
 
 ; file production
 (defun file (csv-file)
   (let ((line (read-line csv-file nil)))
     (unless (null line)
-      (if (and (header line) (records csv-file))
-        t
-        (die "ERR: Error while parsing.")))))
+      (if (header line)
+        (cheer "INFO: header is well formed.")
+        (die "ERR: Error while parsing header."))
+      (let ((parse-fail (records csv-file 1)))
+        (if parse-fail
+          (format t
+            "ERR: Error while parsing records at line ~d~%"
+            (car parse-fail)
+            (cdr parse-fail))
+          (cheer "SUCCESS: File is well formed!"))))))
 ; end file production
 
 ; usage
@@ -121,4 +121,3 @@
 (main sb-ext:*posix-argv*)
 
 ; end parse-csv.lisp
- 
